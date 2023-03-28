@@ -9,19 +9,19 @@ import { api } from "~/utils/api";
 import type { RouterOutputs } from "~/utils/api";
 import Image from "next/image";
 import { LoadingPage } from "~/components/Loading";
-import {  useState } from "react";
+import { useState } from "react";
 
 dayjs.extend(relativeTime);
 
 const CreatePostWizard = () => {
   const [content, setContent] = useState("");
   const { user } = useUser();
-const ctx = api.useContext();
-  const { mutate,isLoading:isPosting} = api.posts.create.useMutation({
-    onSuccess:()=>{
+  const ctx = api.useContext();
+  const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
+    onSuccess: () => {
       setContent("");
       void ctx.posts.getAll.invalidate();
-    }
+    },
   });
 
   return !user ? null : (
