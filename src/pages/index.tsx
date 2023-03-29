@@ -11,6 +11,7 @@ import Image from "next/image";
 import { LoadingPage, LoadingSpinner } from "~/components/Loading";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import Link from "next/link";
 
 dayjs.extend(relativeTime);
 
@@ -20,14 +21,10 @@ const CreatePostWizard = () => {
   const ctx = api.useContext();
   const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
     onSuccess: () => {
-      setContent("");
       void ctx.posts.getAll.invalidate();
     },
     onError: (e) => {
       const errorMessage = e.data?.zodError?.fieldErrors.content;
-
-      console.log(e);
-
       if (errorMessage && errorMessage[0]) {
         toast.error(errorMessage[0]);
       } else {
@@ -38,40 +35,38 @@ const CreatePostWizard = () => {
       setContent("");
     },
   });
-
   return !user ? null : (
     <div className="flex w-full gap-3">
       <Image
         src={user.profileImageUrl}
         alt="Profile image"
         className="h-14 w-14 rounded-full"
-        width="56"
-        height="56"
-        priority
+        width={56}
+        height={56}
       />
       <input
-        placeholder="Type some emojis"
+        placeholder="Type some emojis!"
         className="grow bg-transparent outline-none"
+        type="text"
+        value={content}
         onChange={(e) => setContent(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             e.preventDefault();
             if (content !== "") {
-              mutate({ content });
+              mutate({ content: content });
             }
           }
         }}
-        value={content}
         disabled={isPosting}
       />
-      {content !== "" && !isPosting ? (
-        <button onClick={() => mutate({ content })}>Post</button>
-      ) : (
-        isPosting && (
-          <div className="flex items-center justify-center">
-            <LoadingSpinner size={20} />
-          </div>
-        )
+      {content !== "" && !isPosting && (
+        <button onClick={() => mutate({ content: content })}>Post</button>
+      )}
+      {isPosting && (
+        <div className="flex items-center justify-center">
+          <LoadingSpinner size={20} />
+        </div>
       )}
     </div>
   );
@@ -96,8 +91,8 @@ const PostView = (props: PostWithUser) => {
       />
       <div className="flex flex-col">
         <div className="flex gap-1 text-slate-300">
-          <span>@{author.username}</span> ·
-          <span className="font-thin">{dayjs(post.createdAt).fromNow()}</span>
+          <Link href={`/@${author.username}`}><span>@{author.username}</span></Link> ·
+          <Link href={`/post/${post.id}`}><span className="font-thin">{dayjs(post.createdAt).fromNow()}</span></Link>
         </div>
         <span className="text-2xl">{post.content}</span>
       </div>
