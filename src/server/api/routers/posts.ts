@@ -1,4 +1,3 @@
-import type { User } from "@clerk/nextjs/dist/api";
 import { clerkClient } from "@clerk/nextjs/server";
 import { TRPCError } from "@trpc/server";
 import { Ratelimit } from "@upstash/ratelimit";
@@ -10,14 +9,9 @@ import {
   privateProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { filterUserForClient } from "~/server/helpers/filterUserForClient";
 
-const filterUserForClient = (user: User) => {
-  return {
-    id: user.id,
-    username: user.username,
-    profilePicture: user.profileImageUrl,
-  };
-};
+
 
 // A ratelimiter, that allows 3 requests per 1 minute
 const rateLimit = new Ratelimit({
