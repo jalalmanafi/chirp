@@ -1,15 +1,11 @@
 import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
-import { createProxySSGHelpers } from "@trpc/react-query/ssg";
-import { prisma } from "~/server/db";
-
 import { api } from "~/utils/api";
-import { appRouter } from "~/server/api/root";
-import superjson from "superjson";
 import PageLayout from "~/components/Layout";
 import Image from "next/image";
 import { LoadingPage } from "~/components/Loading";
 import PostView from "~/components/PostView";
+import { generateSSGHepler } from "~/server/helpers/ssgHelper";
 
 const ProfileFeed = (props: { userId: string }) => {
   const { data, isLoading, isError } = api.posts.getPostsByUserId.useQuery({
@@ -62,14 +58,7 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
 };
 
 export const getStaticProps: GetStaticProps = async (context) => {
-  const ssg = createProxySSGHelpers({
-    router: appRouter,
-    ctx: {
-      prisma,
-      userId: null,
-    },
-    transformer: superjson,
-  });
+  const ssg = generateSSGHepler();
   const slug = context.params?.slug;
 
   if (typeof slug !== "string") throw new Error("No slug");
